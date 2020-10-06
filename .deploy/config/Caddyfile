@@ -1,5 +1,5 @@
 :80 {
-    root * /srv/app/public
+    root * /srv/app
 
     @websockets {
         header Connection *upgrade*
@@ -19,4 +19,12 @@
     header -X-Powered-By
     file_server
     log
+}
+
+www.mysite.ru:80 {
+    redir https://mysite.ru{uri}
+}
+
+mysite.myserver.mydomain.ru:80 {
+    redir https://mysite.ru{uri}
 }

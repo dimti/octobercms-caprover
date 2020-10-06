@@ -1,36 +1,41 @@
-<p align="center">
-  <a href="https://github.com/laravel/laravel">
-    <img src="https://avatars3.githubusercontent.com/u/958072?s=200&v=4" height="60">
-  </a>
-  +
-  <a href="https://github.com/CapRover/CapRover">
-    <img src="https://avatars0.githubusercontent.com/u/46361891?s=200&v=4" height="60">
-  </a>
-</p>
-<h1 align="center">
-  Laravel + CapRover
-</h1>
-<p align="center">
-    Template to deploy a <a href="https://github.com/laravel/laravel">Laravel</a> app to a server managed by <a href="https://github.com/CapRover/CapRover">CapRover</a>.
-</p>
+## Persistent directories
 
-<p align="center">
-    <strong>
-        <a href="https://jack.bryce-smith.com/💡/laravel-docker-caprover">jack.bryce-smith.com/💡/laravel-docker-caprover</a>
-    </strong>
-</p>
+`/srv/app/storage/app`:`caprover-mysite-uploads`
 
-## Features
+*Use self-app naming for persistent volume label
 
-- 🐳 Lightweight [PHP 7.4](https://github.com/jackbrycesmith/laravel-caprover-template/blob/master/.deploy/Dockerfile#L1) image with [common extensions](https://github.com/jackbrycesmith/laravel-caprover-template/blob/master/.deploy/Dockerfile#L21); add/remove as required
-- 📦 [Installs composer dependencies](https://github.com/jackbrycesmith/laravel-caprover-template/blob/master/.deploy/Dockerfile#L30); cached between builds if no changes
-- ⚡️ Served via [Caddy 2](https://github.com/caddyserver/caddy)
-- ⏰ [Setup to call](https://github.com/jackbrycesmith/laravel-caprover-template/blob/master/.deploy/Dockerfile#L11) the [Laravel command scheduler](https://laravel.com/docs/7.x/scheduling)
-- 🛰 Straightforward websockets support
-- 💪 [Services will restart](https://github.com/jackbrycesmith/laravel-caprover-template/blob/master/.deploy/config/supervisor.conf) thanks to [supervisord](https://github.com/ochinchina/supervisord)
+## Environment variables
 
-## Usage
+Your October CMS installation need to be prepared as use dot-env configs.
 
-1. [Install Laravel](https://laravel.com/docs/7.x/installation#installing-laravel), e.g. `laravel new -f .`
-2. <a href="https://jack.bryce-smith.com/💡/laravel-docker-caprover"><i>jack.bryce-smith.com/💡/</i>laravel-docker-caprover</a>
-3. [Deploy to CapRover](https://caprover.com/docs/deployment-methods.html), e.g. `caprover deploy`
+*Use .env-example for copy to bulk env into caprover app config.*
+
+## Deploying
+
+### Connect to caprover server
+
+`caprover login -u "https://captain.server.mydomain.ru" -p VerySecurePass -n captain-mydomain`
+
+### First deploy
+
+`caprover deploy -n captain-mydomain -a mysite -b master`
+
+### Other deployments
+
+Repeat with previous deployment options
+
+`caprover deploy -d`
+
+## Abbreviation
+`mysite` - Application name of your site
+
+`server` - Unnecessary subdomain with wildcard of child subdomains for caprover installation.
+For this case, you caprover dashboard url: `https://captain.server.mydomain.ru` 
+
+`mydomain` - you two-level domain name, example: `mydomain.ru`
+
+`captain-mydomain` - alias for you caprover server. Use any better name.
+
+## Mailgun
+
+`.env-example` contains mail system configs based on mailgun. 

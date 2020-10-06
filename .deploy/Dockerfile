@@ -29,19 +29,39 @@ COPY composer.lock composer.lock
 RUN composer global require hirak/prestissimo --no-plugins --no-scripts
 RUN composer install --prefer-dist --no-scripts --no-dev --no-autoloader && rm -rf /root/.composer
 
+# Node & yarn
+ENV NODE_VERSION="v8.17.0"
+ENV NVM_DIR=/root/.nvm
+
+RUN mkdir -p $NVM_DIR \
+    && curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.33.11/install.sh | bash \
+    && . $NVM_DIR/nvm.sh \
+    && nvm install ${NODE_VERSION} \
+    && nvm use ${NODE_VERSION} \
+    && nvm alias ${NODE_VERSION} \
+    && ln -s `npm bin --global` /root/.node-bin
+
+RUN echo "" >> ~/.bashrc \
+    && echo 'export NVM_DIR="$HOME/.nvm"' >> ~/.bashrc \
+    && echo '[ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"  # This loads nvm' >> ~/.bashrc
+
+RUN . "$NVM_DIR/nvm.sh" && curl -o- -L https://yarnpkg.com/install.sh | bash \
+    && echo "" >> ~/.bashrc \
+    && echo 'export PATH="$HOME/.yarn/bin:$PATH"' >> ~/.bashrc
+
 # Copy app
 COPY --chown=www-data:www-data . $LARAVEL_PATH/
 COPY ./.deploy/config/php/local.ini /usr/local/etc/php/conf.d/local.ini
 RUN chmod -R 775 $LARAVEL_PATH/storage
 
-# Set any ENVs
-ARG APP_KEY=${APP_KEY}
-ARG APP_NAME=${APP_NAME}
-ARG APP_URL=${APP_URL}
-ARG APP_ENV=${APP_ENV}
-ARG APP_DEBUG=${APP_DEBUG}
+# Production webpack build
+RUN . $HOME/.nvm/nvm.sh && . $HOME/.bashrc && yarn && yarn encore prod
 
-ARG LOG_CHANNEL=${LOG_CHANNEL}
+# Set any ENVs
+ARG APP_DEBUG=${APP_DEBUG}
+ARG APP_DEBUG=${APP_DEBUG}
+ARG APP_URL=${APP_URL}
+ARG APP_KEY=${APP_KEY}
 
 ARG DB_CONNECTION=${DB_CONNECTION}
 ARG DB_HOST=${DB_HOST}
@@ -49,31 +69,26 @@ ARG DB_PORT=${DB_PORT}
 ARG DB_DATABASE=${DB_DATABASE}
 ARG DB_USERNAME=${DB_USERNAME}
 ARG DB_PASSWORD=${DB_PASSWORD}
-
-ARG BROADCAST_DRIVER=${BROADCAST_DRIVER}
-ARG CACHE_DRIVER=${CACHE_DRIVER}
-ARG QUEUE_CONNECTION=${QUEUE_CONNECTION}
-ARG SESSION_DRIVER=${SESSION_DRIVER}
-ARG SESSION_LIFETIME=${SESSION_LIFETIME}
-
 ARG REDIS_HOST=${REDIS_HOST}
 ARG REDIS_PASSWORD=${REDIS_PASSWORD}
 ARG REDIS_PORT=${REDIS_PORT}
+ARG DB_USE_CONFIG_FOR_TESTING=${DB_USE_CONFIG_FOR_TESTING}
 
-ARG MAIL_MAILER=${MAIL_MAILER}
-ARG MAIL_HOST=${MAIL_HOST}
-ARG MAIL_PORT=${MAIL_PORT}
-ARG MAIL_USERNAME=${MAIL_USERNAME}
-ARG MAIL_PASSWORD=${MAIL_PASSWORD}
-ARG MAIL_ENCRYPTION=${MAIL_ENCRYPTION}
-ARG MAIL_FROM_ADDRESS=${MAIL_FROM_ADDRESS}
-ARG MAIL_ENCRYPTION=${MAIL_ENCRYPTION}
-ARG MAIL_FROM_NAME=${APP_NAME}
+ARG CACHE_DRIVER=${CACHE_DRIVER}
 
-ARG PUSHER_APP_ID=${PUSHER_APP_ID}
-ARG PUSHER_APP_KEY=${PUSHER_APP_KEY}
-ARG PUSHER_APP_SECRET=${PUSHER_APP_SECRET}
-ARG PUSHER_APP_CLUSTER=${PUSHER_APP_CLUSTER}
+ARG SESSION_DRIVER=${SESSION_DRIVER}
+
+ARG QUEUE_CONNECTION=${QUEUE_CONNECTION}
+
+ARG MAIL_DRIVER=${MAIL_DRIVER}
+ARG MAILGUN_DOMAIN=${MAILGUN_DOMAIN}
+ARG MAILGUN_SECRET=${MAILGUN_SECRET}
+
+ARG ROUTES_CACHE=${ROUTES_CACHE}
+ARG ASSET_CACHE=${ASSET_CACHE}
+ARG DATABASE_TEMPLATES=${DATABASE_TEMPLATES}
+ARG LINK_POLICY=${LINK_POLICY}
+ARG ENABLE_CSRF=${ENABLE_CSRF}
 
 # Start app
 EXPOSE 80
